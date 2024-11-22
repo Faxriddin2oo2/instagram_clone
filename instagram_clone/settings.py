@@ -2,6 +2,7 @@ from email.policy import default
 from logging import DEBUG
 from pathlib import Path
 from decouple import config
+from django.conf.global_settings import MEDIA_URL, MEDIA_ROOT, AUTH_USER_MODEL
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,6 +29,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # packages
+    'rest_framework',
+
+    # local apps
+    'users',
+    'shared',
 ]
 
 MIDDLEWARE = [
@@ -111,8 +119,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR/'media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+AUTH_USER_MODEL = 'users.User'
