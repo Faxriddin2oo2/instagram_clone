@@ -29,7 +29,6 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = super(SignUpSerializer, self).create(validated_data)
-        print(user)
         # user -> email -> email jonatish kerak , agar phone bolsa number ga
         if user.auth_type == VIA_EMAIL:
             code = user.create_verify_code(VIA_EMAIL)
@@ -74,11 +73,24 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     def validate_email_phone_number(self, value):
         value = value.lower()
-        # to do
+        if value and User.objects.filter(email=value).exists():
+            data = {
+                "success" : False,
+                "message" : "Bu email allaqachon ma'lumotlar bazasida bor"
+            }
+            raise ValidationError(data)
+        elif value and User.objects.filter(phone_number=value).exists():
+            data = {
+                "success": False,
+                "message": "Bu telefon raqami allaqachon ma'lumotlar bazasida bor"
+            }
+            raise ValidationError(data)
+
 
         return value
 
     def to_representation(self, instance):
-        print("to_rep", instance)
         data = super(SignUpSerializer, self).to_representation(instance)
-        data.update(instance.tokens())
+        data.update(instance.token())
+
+        return data
