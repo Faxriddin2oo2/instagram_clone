@@ -1,6 +1,6 @@
 
 
-from shared.utility import check_email_or_phone
+from shared.utility import check_email_or_phone, send_email
 from .models import User, UserConfirmation, VIA_PHONE, VIA_EMAIL, NEW, CODE_VERIFIED, DONE, PHOTO_STEP
 from rest_framework import exceptions
 from django.db.models import Q
@@ -33,13 +33,12 @@ class SignUpSerializer(serializers.ModelSerializer):
         # user -> email -> email jonatish kerak , agar phone bolsa number ga
         if user.auth_type == VIA_EMAIL:
             code = user.create_verify_code(VIA_EMAIL)
-            print(code)
-            # send_mail(user.email, code)
+            send_email(user.email, code)
         elif user.auth_type == VIA_PHONE:
             code = user.create_verify_code(VIA_PHONE)
             # send_phone_code(user.phone_number, code)
         user.save()
-
+        return user
         
 
     def validate(self, data):
@@ -79,4 +78,7 @@ class SignUpSerializer(serializers.ModelSerializer):
 
         return value
 
-        return data
+    def to_representation(self, instance):
+        print("to_rep", instance)
+        data = super(SignUpSerializer, self).to_representation(instance)
+        data.update(instance.tokens())
