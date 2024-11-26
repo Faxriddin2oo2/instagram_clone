@@ -134,7 +134,38 @@ class ChangeUserInformation(serializers.Serializer):
             )
 
         return username
-    ### to do Validate first name and last name
+
+    def validate_first_name(self, first_name):
+        if len(first_name) < 5 or len(first_name) > 30:
+            raise ValidationError(
+                {
+                    "message" : "First name must be between 5 and 30 characters long"
+                }
+            )
+        if first_name.isdigit():
+            raise ValidationError(
+                {
+                    "message" : "This first name is entirely numeric"
+                }
+            )
+
+        return  first_name
+
+    def validate_last_name(self, last_name):
+        if len(last_name) < 5 or len(last_name) > 30:
+            raise ValidationError(
+                {
+                    "message": "Last name name must be between 5 and 30 characters long"
+                }
+            )
+        if last_name.isdigit():
+            raise ValidationError(
+                {
+                    "message": "This last name is entirely numeric"
+                }
+            )
+
+        return last_name
 
     def update(self, instance, validated_data):
 
