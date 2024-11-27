@@ -8,7 +8,7 @@ from .models import User, UserConfirmation, VIA_PHONE, VIA_EMAIL, NEW, CODE_VERI
 from rest_framework import exceptions
 from django.db.models import Q
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, PermissionDenied
 
 
 class SignUpSerializer(serializers.ModelSerializer):
@@ -229,14 +229,31 @@ class LoginSerializer(TokenObtainPairSerializer):
         }
         # user statusi tekshirilishi kerak
         current_user = User.objects.filter(username__iexact=username).first()
-        if current_user.auth_status in [NEW, CODE_VERIFIED]:
+        if current_user is not None and current_user.auth_status in [NEW, CODE_VERIFIED]:
             raise ValidationError(
                 {
                     'success' : False,
                     'message' : "Siz royhatdan toliq otmagansiz!"
                 }
             )
-        user = authenticate()
+        user = authenticate(**authentication_kwargs)
+        if user is not None:
+            self.user = user
+        else:
+            raise ValidationError(
+                {
+                    'success': False,
+                    'message': "Sorry, login or password you entered is incorrect. Please check and try again!"
+                }
+            )
+    def validate(self, data):
+        self.auth_validate(data)
+        if self.user.auth_status not in [DONE, PHOTO_DONE]:
+            raise PermissionDenied("Siz login qila olmaysiz. Ruxsatingiz yo'q")
+        data = self.user.token()
+        data['auth_status'] = self.user.auth_status
+        data['full_name'] = self.user.full_name
+        return data
 
     def get_user(self, **kwargs):
         users = User.objects.filter(**kwargs)
