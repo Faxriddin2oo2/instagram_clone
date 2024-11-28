@@ -1,17 +1,19 @@
 from datetime import datetime
+from tokenize import TokenError
 
-
+from django.core.serializers import serialize
 from rest_framework import permissions
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import CreateAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from shared.utility import send_email
 from .serializers import SignUpSerializer, ChangeUserInformation, ChangeUserPhotoSerializer, LoginSerializer, \
-    LoginRefreshSerializer
+    LoginRefreshSerializer, LogoutSerializer
 from .models import User, CODE_VERIFIED, DONE, NEW, VIA_EMAIL, VIA_PHONE
 
 
@@ -131,5 +133,26 @@ class ChangeUserPhotoView(APIView):
 class LoginView(TokenObtainPairView):
     serializer_class = LoginSerializer
 
+
 class LoginRefreshView(TokenRefreshView):
     serializer_class = LoginRefreshSerializer
+
+
+class LogOutView(APIView):
+    serializer_class = LogoutSerializer
+    permission_classes = [IsAuthenticated, ]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=self.request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            refresh_token = self.request.data['refresh']
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            data = {
+                'success' : True,
+                'message' : "You are log out"
+            }
+            return Response(data, status=205)
+        except TokenError:
+            return Response(status=400)
