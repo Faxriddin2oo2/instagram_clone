@@ -205,7 +205,6 @@ class LoginSerializer(TokenObtainPairSerializer):
         self.fields['userinput'] = serializers.CharField(required=True)
         self.fields['username'] = serializers.CharField(required=False, read_only=True)
 
-
     def auth_validate(self, data):
         user_input = data.get('userinput') # email, phone_number, username
         if check_user_type(user_input) == 'username':
