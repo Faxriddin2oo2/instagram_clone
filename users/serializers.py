@@ -1,3 +1,5 @@
+from asyncore import write
+
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
 from django.contrib.auth.password_validation import validate_password
@@ -300,3 +302,37 @@ class ForgotPasswordSerializer(serializers.Serializer):
             raise NotFound(detail="User not found")
         attrs['user'] = user.first()
         return attrs
+
+
+class ResetPasswordSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only=True)
+    password = serializers.CharField(min_length=8, required=True, write_only=True)
+    confirm_password = serializers.CharField(min_length=8, required=True, write_only=True)
+
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'password',
+            'confirm_password'
+        )
+
+    def validate(self, data):
+        password = data.get('password', None)
+        confirm_password = data.get('password', None)
+        if password != confirm_password:
+            raise ValidationError(
+                {
+                    "success" : False,
+                    'message' : "Parollaringiz qiymati bir-biriga teng emas"
+                }
+            )
+        if password:
+            validate_password(password)
+        return data
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password')
+        instance.set_password(password)
+        return super(ResetPasswordSerializer, self).update(instance, validated_data)
+
