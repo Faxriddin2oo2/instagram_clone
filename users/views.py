@@ -5,15 +5,15 @@ from django.core.serializers import serialize
 from rest_framework import permissions
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import CreateAPIView, UpdateAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from shared.utility import send_email
+from shared.utility import send_email, check_email_or_phone
 from .serializers import SignUpSerializer, ChangeUserInformation, ChangeUserPhotoSerializer, LoginSerializer, \
-    LoginRefreshSerializer, LogoutSerializer
+    LoginRefreshSerializer, LogoutSerializer, ForgotPasswordSerializer
 from .models import User, CODE_VERIFIED, DONE, NEW, VIA_EMAIL, VIA_PHONE
 
 
@@ -156,3 +156,30 @@ class LogOutView(APIView):
             return Response(data, status=205)
         except TokenError:
             return Response(status=400)
+
+
+class ForgotPasswordView(APIView):
+    permission_classes = [AllowAny, ]
+    serializer_class = ForgotPasswordSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=self.request.data)
+        serializer.is_valid(raise_exception=True)
+        email_or_phone = serializer.validated_data.get('email_or_phone')
+        user = serializer.validated_data.get('user')
+        if check_email_or_phone(email_or_phone) == 'phone':
+            code = user.create_verify_code(VIA_PHONE)
+            send_email(email_or_phone, code)
+        elif check_email_or_phone(email_or_phone) == 'email':
+            code = user.create_verify_code(VIA_EMAIL)
+            send_email(email_or_phone, code)
+
+        return Response(
+            {
+                "success" : True,
+                "message" : "Tasdilash kodi muvaffaqiyatli yuborildi",
+                "access" : user.token()['access'],
+                "refresh" : user.token()['refresh_token'],
+                'user_status': user.auth_status,
+            }, status=200
+        )
