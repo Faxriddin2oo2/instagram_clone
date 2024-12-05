@@ -203,7 +203,7 @@ class ChangeUserPhotoSerializer(serializers.Serializer):
 class LoginSerializer(TokenObtainPairSerializer):
 
     def __init__(self, *args, **kwargs):
-        super(LoginSerializer, self).__init__(*args, *kwargs)
+        super(LoginSerializer, self).__init__(*args, **kwargs)
         self.fields['userinput'] = serializers.CharField(required=True)
         self.fields['username'] = serializers.CharField(required=False, read_only=True)
 
