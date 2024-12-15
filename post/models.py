@@ -40,7 +40,7 @@ class PostLike(BaseModel):
     class Meta:
         constraints = [
             UniqueConstraint(
-                fields=['author', 'post'],
+                fields=['author', 'post']
             )
         ]
 
