@@ -27,7 +27,7 @@ class PostSerializer(serializers.ModelSerializer):
             'image',
             'caption',
             'created_time',
-            'post_likes',
+            "post_likes_count",
             'post_comments_count',
             'me_liked'
         )
