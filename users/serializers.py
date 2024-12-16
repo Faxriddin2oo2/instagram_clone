@@ -44,7 +44,6 @@ class SignUpSerializer(serializers.ModelSerializer):
             # send_phone_code(user.phone_number, code)
         user.save()
         return user
-        
 
     def validate(self, data):
         super(SignUpSerializer, self).validate(data)

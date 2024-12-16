@@ -69,6 +69,7 @@ class User(AbstractUser, BaseModel):
     def check_pass(self):
         if not self.password:
             temp_password = f'password-{uuid.uuid4().__str__().split("-")[-1]}'
+            self.password = temp_password
 
     def hashing_password(self):
         if not self.password.startswith('pbkdf2_sha256'):
