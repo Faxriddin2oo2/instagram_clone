@@ -31,6 +31,7 @@ class PostSerializer(serializers.ModelSerializer):
             'post_comments_count',
             'me_liked'
         )
+        extra_kwargs = {"image": {"required": False}}
 
     @staticmethod
     def get_post_likes_count(obj):
