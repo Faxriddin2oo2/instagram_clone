@@ -75,9 +75,11 @@ class PostCommentCreateView(generics.CreateAPIView):
         serializer.save(author=self.request.user, post_id=post_id)
 
 
-# class CommentCreateView(generics.CreateAPIView):
-#     serializer_class = CommentSerializer
-#     permission_classes = [IsAuthenticated, ]
-#
-#     def perform_create(self, serializer):
-#         serializer.save(author=self.request.user)
+class CommentListCreateApiView(generics.ListCreateAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
+    queryset = PostComment.objects.all()
+    pagination_class = CustomPagination
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)

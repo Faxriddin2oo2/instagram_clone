@@ -66,6 +66,7 @@ class CommentSerializer(serializers.ModelSerializer):
             'id',
             'author',
             'comment',
+            'post',
             'parent',
             'created_time',
             'replies',
