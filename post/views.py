@@ -83,3 +83,27 @@ class CommentListCreateApiView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+
+class CommentRetrieveView(generics.RetrieveAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [AllowAny, ]
+    queryset = PostComment.objects.all()
+
+
+class PostLikeListView(generics.ListAPIView):
+    serializer_class = PostLikeSerializer
+    permission_classes = [AllowAny, ]
+
+    def get_queryset(self):
+        post_id = self.kwargs['pk']
+        return PostLike.objects.filter(post_id=post_id)
+
+
+class CommentLikeListView(generics.ListAPIView):
+    serializer_class = CommentLikeSerializer
+    permission_classes = [AllowAny, ]
+
+    def get_queryset(self):
+        comment_id = self.kwargs['pk']
+        return CommentLike.objects.filter(comment_id=comment_id)
