@@ -16,9 +16,7 @@ urlpatterns = [
 
 
     # Vazifa
-    """
-    path('likes/')
-    path('likes/create/')
-    path(likes/delete/'
-    """
+    # path('likes/')
+    # path('likes/create/')
+    # path(likes/delete/'
 ]
