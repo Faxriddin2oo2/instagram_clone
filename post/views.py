@@ -1,4 +1,5 @@
 from django.core.serializers import serialize
+from django.template.defaulttags import comment
 from docs.conf import author
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated
@@ -139,7 +140,61 @@ class CommentLikeListView(generics.ListAPIView):
 class PostLikeApiView(APIView):
 
     def post(self, request, pk):
+        # try:
+        #     post_like = PostLike.objects.get(
+        #         author=self.request.user,
+        #         post_id=pk
+        #     )
+        #     serializer = PostLikeSerializer(post_like)
+        #     data = {
+        #         "success" : True,
+        #         "message" : "Postga LIKE muvaffaqiyatli qo'shildi",
+        #         "data" : serializer.data
+        #     }
+        #     return Response(data, status=status.HTTP_201_CREATED)
+        # except Exception as e:
+        #     data = {
+        #         "success": False,
+        #         "message": f"{str(e)}",
+        #         "data": None
+        #     }
+        #     return Response(data, status=status.HTTP_400_BAD_REQUEST)
+
+    # def delete(self, request, pk):
+    #     try:
+    #         post_like = PostLike.objects.get(
+    #             author=self.request.user,
+    #             post_id=pk
+    #         )
+    #         post_like.delete()
+    #         data = {
+    #             "success": True,
+    #             "message": "LIKE muvaffaqiyatli o'chirildi",
+    #             "data": None
+    #         }
+    #         return Response(data, status=status.HTTP_204_NO_CONTENT)
+    #
+    #     except Exception as e:
+    #         data = {
+    #             "success": False,
+    #             "message": f"{str(e)}",
+    #             "data": None
+    #         }
+    #         return Response(data, status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request, pk):
         try:
+            post_like = PostLike.objects.get(
+                author=self.request.user,
+                post_id=pk
+            )
+            post_like.delete()
+            data = {
+                "success" : True,
+                "message" : "LIKE muvaffaqiyatli o'chirildi"
+            }
+            return Response(data, status=status.HTTP_204_NO_CONTENT)
+        except PostLike.DoesNotExist:
             post_like = PostLike.objects.create(
                 author=self.request.user,
                 post_id=pk
@@ -150,61 +205,11 @@ class PostLikeApiView(APIView):
                 "message" : "Postga LIKE muvaffaqiyatli qo'shildi",
                 "data" : serializer.data
             }
-            return Response(data, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            data = {
-                "success": False,
-                "message": f"{str(e)}",
-                "data": None
-            }
-            return Response(data, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk):
-        try:
-            post_like = PostLike.objects.get(
-                author=self.request.user,
-                post_id=pk
-            )
-            post_like.delete()
-            data = {
-                "success": True,
-                "message": "LIKE muvaffaqiyatli o'chirildi",
-                "data": None
-            }
-            return Response(data, status=status.HTTP_204_NO_CONTENT)
-
-        except Exception as e:
-            data = {
-                "success": False,
-                "message": f"{str(e)}",
-                "data": None
-            }
-            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data, status.HTTP_201_CREATED)
 
 
 class CommentLikeApiView(APIView):
     def post(self, request, pk):
-        try:
-            comment_like = CommentLike.objects.create(
-                author=self.request.user,
-                comment_id=pk
-            )
-            serializer = CommentLikeSerializer(comment_like)
-            data = {
-                "success": True,
-                "message": "Izohga LIKE muvaffaqiyatli qo'shildi",
-                "data": serializer.data
-            }
-            return Response(data, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            data = {
-                "success": False,
-                "message": f"{str(e)}",
-                "data": None
-            }
-            return Response(data, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk):
         try:
             comment_like = CommentLike.objects.get(
                 author=self.request.user,
@@ -214,17 +219,63 @@ class CommentLikeApiView(APIView):
             data = {
                 "success": True,
                 "message": "LIKE muvaffaqiyatli o'chirildi",
-                "data": None
+                "data" : None
             }
             return Response(data, status=status.HTTP_204_NO_CONTENT)
-
-        except Exception as e:
+        except CommentLike.DoesNotExist:
+            comment_like = PostComment.objects.create(
+                author=self.request.user,
+                post_id=pk
+            )
+            serializer = CommentLikeSerializer(comment_like)
             data = {
-                "success": False,
-                "message": f"{str(e)}",
-                "data": None
+                "success": True,
+                "message": "Izohga LIKE muvaffaqiyatli qo'shildi",
+                "data": serializer.data
             }
-            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data, status.HTTP_201_CREATED)
+    # def post(self, request, pk):
+    #     try:
+    #         comment_like = CommentLike.objects.create(
+    #             author=self.request.user,
+    #             comment_id=pk
+    #         )
+    #         serializer = CommentLikeSerializer(comment_like)
+    #         data = {
+    #             "success": True,
+    #             "message": "Izohga LIKE muvaffaqiyatli qo'shildi",
+    #             "data": serializer.data
+    #         }
+    #         return Response(data, status=status.HTTP_201_CREATED)
+    #     except Exception as e:
+    #         data = {
+    #             "success": False,
+    #             "message": f"{str(e)}",
+    #             "data": None
+    #         }
+    #         return Response(data, status=status.HTTP_400_BAD_REQUEST)
+    #
+    # def delete(self, request, pk):
+    #     try:
+    #         comment_like = CommentLike.objects.get(
+    #             author=self.request.user,
+    #             comment_id=pk
+    #         )
+    #         comment_like.delete()
+    #         data = {
+    #             "success": True,
+    #             "message": "LIKE muvaffaqiyatli o'chirildi",
+    #             "data": None
+    #         }
+    #         return Response(data, status=status.HTTP_204_NO_CONTENT)
+    #
+    #     except Exception as e:
+    #         data = {
+    #             "success": False,
+    #             "message": f"{str(e)}",
+    #             "data": None
+    #         }
+    #         return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
 
 
