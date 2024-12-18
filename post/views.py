@@ -139,7 +139,7 @@ class CommentLikeListView(generics.ListAPIView):
 
 class PostLikeApiView(APIView):
 
-    def post(self, request, pk):
+    # def post(self, request, pk):
         # try:
         #     post_like = PostLike.objects.get(
         #         author=self.request.user,
