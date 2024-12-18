@@ -99,6 +99,31 @@ class PostLikeListView(generics.ListAPIView):
         post_id = self.kwargs['pk']
         return PostLike.objects.filter(post_id=post_id)
 
+class PostLikeCreateView(generics.CreateAPIView):
+    serializer_class = PostLikeSerializer
+    permission_classes = [IsAuthenticated, ]
+
+    def perform_create(self, serializer):
+        post_id = self.kwargs['pk']
+        serializer.save(author=self.request.user, post_id=post_id)
+
+
+class PostLikeDeleteView(generics.DestroyAPIView):
+    queryset = PostLike.objects.all()
+    serializer_class = PostLikeSerializer
+    permission_classes = [IsAuthenticated, ]
+
+    def delete(self, request, *args, **kwargs):
+        like = self.get_object()
+        like.delete()
+        return Response(
+            {
+                "success": True,
+                "code": status.HTTP_204_NO_CONTENT,
+                "message": "Like successfully deleted",
+            }
+        )
+
 
 class CommentLikeListView(generics.ListAPIView):
     serializer_class = CommentLikeSerializer
@@ -107,3 +132,5 @@ class CommentLikeListView(generics.ListAPIView):
     def get_queryset(self):
         comment_id = self.kwargs['pk']
         return CommentLike.objects.filter(comment_id=comment_id)
+
+
