@@ -111,7 +111,21 @@ class PostLikeListView(generics.ListAPIView):
 #         serializer.save(author=self.request.user, post_id=post_id)
 #
 #
-
+# class PostLikeDeleteView(generics.DestroyAPIView):
+#     queryset = PostLike.objects.all()
+#     serializer_class = PostLikeSerializer
+#     permission_classes = [IsAuthenticated, ]
+#
+#     def delete(self, request, *args, **kwargs):
+#         like = self.get_object()
+#         like.delete()
+#         return Response(
+#             {
+#                 "success": True,
+#                 "code": status.HTTP_204_NO_CONTENT,
+#                 "message": "Like successfully deleted",
+#             }
+#         )
 
 
 class CommentLikeListView(generics.ListAPIView):
